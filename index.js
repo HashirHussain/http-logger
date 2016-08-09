@@ -4,7 +4,7 @@ var fs = require('fs');
 var path = require('path');
 var options = {
         dir: 'http_logger',
-        file: 'http_logger',
+        file: 'http_logger.log',
         dateWise: false
     },
     fomart, todayDate = String(),
@@ -83,19 +83,26 @@ function validateOptions(opt) {
             options.file = opt.file || options.file;
         }
 
-
         if (opt.hasOwnProperty('dateWise')) {
             if (typeof opt.dateWise !== 'boolean') {
                 throw new TypeError('dateWise must be a boolean');
             }
             options.dateWise = opt.dateWise || options.dateWise;
         }
-
-        if (options.dateWise === true) {
-            todayDate = todayDate.concat(new Date().getDate(), '_', monthsName[new Date().getMonth()], '_', new Date().getFullYear());
+    }
+    if (options.dateWise === true) {
+        todayDate = todayDate.concat(new Date().getDate(), '_', monthsName[new Date().getMonth()], '_', new Date().getFullYear());
+        if (options.file.indexOf('.log') === -1) {
             options.file = String().concat(options.file, '_', todayDate, '.log');
         } else {
+            options.file = String().concat(options.file, '_', todayDate);
+        }
+
+    } else {
+        if (options.file.indexOf('.log') === -1) {
             options.file = String().concat(options.file, '.log');
+        } else {
+            options.file = String().concat(options.file);
         }
     }
     return options;
@@ -117,7 +124,7 @@ function logTime() {
  */
 function checkFolderExists(folder) {
     if (!fs.existsSync(folder)) {
-       return fs.mkdirSync(folder);
+        return fs.mkdirSync(folder);
     }
 }
 
@@ -136,8 +143,7 @@ function formatDate(d) {
     return pad(date, 1) + '-' + month + '-' + year + 'T' + pad(hour, 1) + ':' + pad(mins, 1) + ':' + pad(secs, 1) + ' +0000';
 }
 
-function responseTime
-(res) {
+function responseTime(res) {
     if (typeof res.getHeader === 'function') {
         return res.getHeader('X-Response-Time');
     }
@@ -158,8 +164,6 @@ function formatUrl(req) {
 }
 
 
-
-
 function pad(num, step) {
     num = String(num);
     if (num.length !== 1) {
@@ -172,3 +176,4 @@ function pad(num, step) {
     return zeroes + num;
 
 }
+
