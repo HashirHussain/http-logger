@@ -66,6 +66,40 @@ dateWise:true
 });
 ```
 
+##### callback 
+
+- Type : `Function`
+- Optional : Yes
+- Default value :`empty function`
+
+Callback function return logs.
+
+e.g. 
+
+```javascript
+logger({
+callback:function(log) {
+    console.log(log);
+}
+});
+```
+
+##### saveToFile 
+
+- Type : `Boolean`
+- Optional : Yes
+- Default value :`true`
+
+If set `false` no logs have been written into the file.
+
+e.g. 
+
+```javascript
+logger({
+saveToFile:'false'
+});
+```
+
 ### Example
 
 ```javascript
