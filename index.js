@@ -5,7 +5,9 @@ var path = require('path');
 var options = {
         dir: 'http_logger',
         file: 'http_logger.log',
-        dateWise: false
+        dateWise: false,
+        callback: null,
+        saveToFile: true
     },
     fomart, todayDate = String(),
     currentDate,
@@ -26,7 +28,7 @@ function app() {
         validateOptions(arguments[0]);
     }
 
-    return function(req, res, done) {
+    return function (req, res, done) {
         //0. Check directory exists
         checkFolderExists(options.dir);
 
@@ -40,9 +42,13 @@ function app() {
             fomart = fomart.replace(':statusCode', res.statusCode);
             fomart = fomart.replace(':date', formatDate(new Date()));
             fomart = fomart.replace(':response-time', responseTime(res));
-            fs.appendFile(path.join(options.dir, options.file), fomart, 'utf8', function(err) {
-                if (err) throw err;
-            });
+            if (options.callback != null)
+                options.callback(format);
+
+            if (options.saveToFile)
+                fs.appendFile(path.join(options.dir, options.file), fomart, 'utf8', function (err) {
+                    if (err) throw err;
+                });
         }
 
         //1. Log Response Start
@@ -88,6 +94,20 @@ function validateOptions(opt) {
                 throw new TypeError('dateWise must be a boolean');
             }
             options.dateWise = opt.dateWise || options.dateWise;
+        }
+
+        if(opt.hasOwnProperty('callback')) {
+            if (typeof opt.callback !== 'function') {
+                throw new TypeError('callback must be a function');
+            }
+            options.callback = opt.callback || options.callback;
+        }
+
+        if (opt.hasOwnProperty('saveToFile')) {
+            if (typeof opt.saveToFile !== 'boolean') {
+                throw new TypeError('saveToFile must be a boolean');
+            }
+            options.saveToFile = opt.saveToFile || options.saveToFile;
         }
     }
     if (options.dateWise === true) {
